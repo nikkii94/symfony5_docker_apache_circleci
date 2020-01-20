@@ -1,4 +1,5 @@
-FROM php:7.4-apache
+#FROM php:7.4-apache
+FROM php:7.3-apache
 
 # set main params
 ARG BUILD_ARGUMENT_DEBUG_ENABLED=false
@@ -65,22 +66,36 @@ RUN a2enmod rewrite
 RUN a2enmod ssl
 
 # install Xdebug in case development or test environment
-#COPY ./.docker/debug/check_debug.sh /tmp/
-#COPY ./.docker/debug/xdebug.ini /tmp/
-#RUN chmod u+x /tmp/check_debug.sh && /tmp/check_debug.sh
+COPY ./.docker/debug/check_debug.sh /tmp/
+COPY ./.docker/debug/xdebug.ini /tmp/
+RUN chmod u+x /tmp/check_debug.sh && /tmp/check_debug.sh
+
+# install yarn
+RUN curl https://deb.nodesource.com/setup_12.x | bash
+RUN curl https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
+RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
+RUN apt-get update && apt-get install -y nodejs yarn
 
 # install composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin/ --filename=composer
 
+RUN composer global require "hirak/prestissimo" --prefer-dist
+
 # add supervisor
-RUN mkdir -p /var/log/supervisor
-COPY --chown=root:root ./.docker/supervisord/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-COPY --chown=root:root ./.docker/supervisord/cron /var/spool/cron/crontabs/root
-RUN chmod 0600 /var/spool/cron/crontabs/root
+#RUN mkdir -p /var/log/supervisor
+#COPY --chown=root:root ./.docker/supervisord/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+#COPY --chown=root:root ./.docker/supervisord/cron /var/spool/cron/crontabs/root
+#RUN chmod 0600 /var/spool/cron/crontabs/root
 
 # generate certificates
 # TODO: change it and make additional logic for production environment
-RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/ssl-cert-snakeoil.key -out /etc/ssl/certs/ssl-cert-snakeoil.pem -subj "/C=AT/ST=Vienna/L=Vienna/O=Security/OU=Development/CN=example.com"
+RUN openssl req -new -newkey rsa:4096 -days 3650 \
+    -nodes -x509 -subj "/C=HU/ST=Pest/L=Local/O=Security/OU=Development/CN=mysite.local" \
+    -keyout /etc/ssl/private/ssl-cert-snakeoil.key -out /etc/ssl/certs/ssl-cert-snakeoil.pem
+
+#RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+#    -keyout /etc/ssl/private/ssl-cert-snakeoil.key \
+#    -out /etc/ssl/certs/ssl-cert-snakeoil.pem -subj "/C=HU/ST=Budapest/L=Budapest/O=Security/OU=Development/CN=localhost"
 
 # set working directory
 WORKDIR $APP_HOME
@@ -93,13 +108,24 @@ USER www-data
 # copy source files
 COPY --chown=www-data:www-data . $APP_HOME/
 
-# install all PHP dependencies
-RUN if [ "$BUILD_ARGUMENT_ENV" = "dev" ] || [ "$BUILD_ARGUMENT_ENV" = "test" ]; then composer install --optimize-autoloader --no-interaction --no-progress; \
-    else export APP_ENV=$BUILD_ARGUMENT_ENV && composer install --optimize-autoloader --no-interaction --no-progress --no-dev; \
-    fi
+COPY ./.docker/entrypoint.sh /tmp/
+RUN /tmp/entrypoint.sh
 
-# create cached config file .env.local.php in case prod environment
-RUN if [ "$BUILD_ARGUMENT_ENV" = "prod" ]; then composer dump-env $BUILD_ARGUMENT_ENV; \
-    fi
+# install all PHP dependencies
+#RUN if [ "$BUILD_ARGUMENT_ENV" = "dev" ] || [ "$BUILD_ARGUMENT_ENV" = "test" ]; then \
+#        composer install --optimize-autoloader --no-interaction --no-progress; \
+#    else \
+#        export APP_ENV=$BUILD_ARGUMENT_ENV && composer install --optimize-autoloader --no-interaction --no-progress --no-dev; \
+#    fi
+#
+#RUN if [ "$BUILD_ARGUMENT_ENV" = "dev" ] || [ "$BUILD_ARGUMENT_ENV" = "test" ]; then \
+#        yarn install && yarn encore dev; \
+#    else \
+#        yarn install && yarn encore production; \
+#    fi
+#
+## create cached config file .env.local.php in case prod environment
+#RUN if [ "$BUILD_ARGUMENT_ENV" = "prod" ]; then composer dump-env $BUILD_ARGUMENT_ENV; \
+#    fi
 
 USER root

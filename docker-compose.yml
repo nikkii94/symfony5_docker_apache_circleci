@@ -9,8 +9,9 @@ services:
       args:
         - "BUILD_ARGUMENT_ENV=dev"
         - "BUILD_ARGUMENT_DEBUG_ENABLED=false"
-      dockerfile: .docker/Dockerfile
-    container_name: symfony
+      dockerfile: ./.docker/Dockerfile
+    container_name: symfony5
+#    user: 1000:1000
     expose:
       - "80"
       - "443"
@@ -18,36 +19,15 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./:/var/www/code
+      - ./:/var/www/code:cached
     depends_on:
       - mysql
-      - rabbitmq
     links:
       - mysql
-      - rabbitmq
-
-  supervisord:
-    image: symfony:latest
-    build:
-      context: .
-      args:
-        - "BUILD_ARGUMENT_ENV=dev"
-        - "BUILD_ARGUMENT_DEBUG_ENABLED=false"
-      dockerfile: .docker/Dockerfile
-    container_name: supervisord
-    user: root
-    volumes:
-      - ./:/var/www/code
-    depends_on:
-      - mysql
-      - rabbitmq
-    links:
-      - mysql
-      - rabbitmq
-    command: ["/usr/bin/supervisord"]
 
   mysql:
     image: mysql:8.0
+    restart: always
     container_name: mysql
     command: --default-authentication-plugin=mysql_native_password
     environment:
@@ -57,15 +37,11 @@ services:
       - "33061:3306"
     volumes:
       - ./var/mysql-data:/var/lib/mysql
-      - .docker/environments/dev/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+      - ./.docker/environments/dev/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
 
-  rabbitmq:
-    image: rabbitmq:3-management-alpine
-    container_name: rabbitmq
-    environment:
-      - RABBITMQ_DEFAULT_USER=guest
-      - RABBITMQ_DEFAULT_PASS=guest
+  adminer:
+    image: adminer
+    restart: always
+    container_name: adminer
     ports:
-      - "15672:15672"
-    volumes:
-      - ./var/rabbitmq:/var/lib/rabbitmq
+      - "8080:8080"
