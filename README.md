@@ -1,11 +1,11 @@
-## Symfony 5 Base Application with Docker & Apache & CircleCI configuration
+# Symfony 5 Base Application with Docker & Apache & CircleCI configuration
 
-# PHP symfony environment
 Docker environment required to run Symfony (based on official php and mysql docker hub repositories).
 
+<!-- 
 [![CircleCI](https://circleci.com/gh/dimadeush/docker-apache-php-symfony.svg?style=svg)](https://circleci.com/gh/dimadeush/docker-apache-php-symfony)
-
 [Source code](https://github.com/dimadeush/docker-apache-php-symfony.git)
+-->
 
 ## Requirements
 * Docker version 18.06 or later
@@ -13,14 +13,11 @@ Docker environment required to run Symfony (based on official php and mysql dock
 * An editor or IDE
 * MySQL Workbench
 
-Note: OS recommendation - Linux Ubuntu based.
-
 ## Components:
 1. Apache 2.4
 2. PHP 7.3 (Apache handler)
 3. MySQL 8
-4. Symfony 4.3
-5. RabbitMQ 3
+4. Symfony 5.0
 
 ## Setting up DEV environment
 1. Set another APP_SECRET for application in .env.prod file.
@@ -32,11 +29,15 @@ Note: OS recommendation - Linux Ubuntu based.
     ```
     docker-compose build
     make start
-    make composer-install
+    ```
+   
+   ```
+    make ssh 
+    composer install
     ```
 3. Add domain to local 'hosts' file:
     ```
-    127.0.0.1    localhost
+    127.0.0.1    mysite.local
     ```
 4. Make sure that you have installed migrations/fixtures:
     ```
@@ -61,7 +62,7 @@ Note: OS recommendation - Linux Ubuntu based.
         * Have fun with debugging
 
 ## Additional main command available:
-    ```
+```
     make start
     make start-test
     make start-prod
@@ -77,7 +78,6 @@ Note: OS recommendation - Linux Ubuntu based.
     make env-prod
     
     make ssh
-    make ssh-supervisord
     
     make composer-install-prod
     make composer-install
@@ -85,8 +85,6 @@ Note: OS recommendation - Linux Ubuntu based.
     make composer-update
     
     make info
-    
-    make logs-supervisord
     
     make drop-migrate
     
@@ -98,24 +96,24 @@ Note: OS recommendation - Linux Ubuntu based.
     make phpunit
     
     etc....
-    ```
-    Notes: Please see more commands in Makefile
+```
 
 ## Architecture & packages
-* [Symfony 4.3](https://symfony.com)
+* [Symfony 5.0](https://symfony.com)
 * [apache-pack](https://github.com/symfony/recipes-contrib/tree/master/symfony/apache-pack)
 * [doctrine-migrations-bundle](https://github.com/doctrine/DoctrineMigrationsBundle)
 * [doctrine-fixtures-bundle](https://github.com/doctrine/DoctrineFixturesBundle)
-* [command-scheduler-bundle](https://github.com/j-guyon/CommandSchedulerBundle)
 * [phpunit](https://phpunit.de)
 * [phpunit-bridge](https://github.com/symfony/phpunit-bridge)
-* [phpunit-result-printer](https://github.com/mikeerickson/phpunit-pretty-result-printer)
 * [browser-kit](https://github.com/symfony/browser-kit)
 * [css-selector](https://github.com/symfony/css-selector)
 * [security-checker](https://github.com/sensiolabs/security-checker)
-* [messenger](https://symfony.com/doc/current/messenger.html)
 * [serializer-pack](https://packagist.org/packages/symfony/serializer-pack)
-* [amqp](https://packagist.org/packages/symfony/amqp-pack)
+
+<!-- * [phpunit-result-printer](https://github.com/mikeerickson/phpunit-pretty-result-printer) -->
+<!-- * [messenger](https://symfony.com/doc/current/messenger.html) -->
+<!-- * [amqp](https://packagist.org/packages/symfony/amqp-pack) -->
+<!-- * [command-scheduler-bundle](https://github.com/j-guyon/CommandSchedulerBundle) -->
 
 ## General guidelines
 * **[General](docs/general.md)**
