@@ -1,0 +1,36 @@
+version: 2
+
+jobs:
+  build:
+    working_directory: ~/code
+    machine: true
+    branches:
+      ignore:
+        - dev
+
+    steps:
+      - checkout
+
+      - run:
+          name: Start container and verify it's working
+          command: |
+            make start-test
+
+      - run:
+          name: Wait for DB container is running and initialize db
+          command: |
+            make wait-for-db
+            make drop-migrate
+            make fixtures
+
+      - run:
+          name: Run unit/function tests
+          command: |
+            make phpunit
+
+      - store_artifacts:
+          path: reports
+
+      - store_test_results:
+          path: reports
+

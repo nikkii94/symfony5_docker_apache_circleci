@@ -98,6 +98,11 @@ Docker environment required to run Symfony (based on official php and mysql dock
     etc....
 ```
 
+copy ssl cert
+```
+docker cp symfony5:/etc/ssl/private/ssl-cert-snakeoil.pem ./certs
+```
+
 ## Architecture & packages
 * [Symfony 5.0](https://symfony.com)
 * [apache-pack](https://github.com/symfony/recipes-contrib/tree/master/symfony/apache-pack)

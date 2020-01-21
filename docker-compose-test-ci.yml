@@ -7,11 +7,10 @@ services:
     build:
       context: .
       args:
-        - "BUILD_ARGUMENT_ENV=dev"
-        - "BUILD_ARGUMENT_DEBUG_ENABLED=true"
+        - "BUILD_ARGUMENT_ENV=test"
+        - "BUILD_ARGUMENT_DEBUG_ENABLED=false"
       dockerfile: ./.docker/Dockerfile
     container_name: symfony5
-#    user: 1000:1000
     expose:
       - "80"
       - "443"
