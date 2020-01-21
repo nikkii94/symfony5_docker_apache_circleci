@@ -109,7 +109,8 @@ USER www-data
 COPY --chown=www-data:www-data . $APP_HOME/
 
 COPY ./.docker/entrypoint.sh /tmp/
-RUN /tmp/entrypoint.sh
+#RUN /tmp/entrypoint.sh
+RUN chmod u+x /tmp/entrypoint.sh && /tmp/entrypoint.sh
 
 # install all PHP dependencies
 #RUN if [ "$BUILD_ARGUMENT_ENV" = "dev" ] || [ "$BUILD_ARGUMENT_ENV" = "test" ]; then \
