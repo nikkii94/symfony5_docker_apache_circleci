@@ -70,9 +70,6 @@ COPY ./.docker/debug/check_debug.sh /tmp/
 COPY ./.docker/debug/xdebug.ini /tmp/
 RUN chmod u+x /tmp/check_debug.sh && /tmp/check_debug.sh
 
-COPY ./.docker/entrypoint.sh ./
-RUN chmod u+x ./entrypoint.sh
-
 # install yarn
 RUN curl https://deb.nodesource.com/setup_12.x | bash
 RUN curl https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
@@ -103,6 +100,9 @@ RUN openssl req -new -newkey rsa:4096 -days 3650 \
 # set working directory
 WORKDIR $APP_HOME
 
+COPY ./.docker/entrypoint.sh /
+RUN chmod u+x /entrypoint.sh
+
 # create composer folder for user www-data
 RUN mkdir -p /var/www/.composer && chown -R www-data:www-data /var/www/.composer
 
@@ -111,6 +111,6 @@ USER www-data
 # copy source files
 COPY --chown=www-data:www-data . $APP_HOME/
 
-ENTRYPOINT ["./entrypoint.sh"]
+ENTRYPOINT ["/entrypoint.sh"]
 
 USER root
