@@ -103,26 +103,13 @@ USER www-data
 # copy source files
 COPY --chown=www-data:www-data . $APP_HOME/
 
-COPY ./.docker/entrypoint.sh /tmp/
-#RUN /tmp/entrypoint.sh
-
-RUN ["chmod", "+x", "/tmp/entrypoint.sh"]
-
 # install all PHP dependencies
-#RUN if [ "$BUILD_ARGUMENT_ENV" = "dev" ] || [ "$BUILD_ARGUMENT_ENV" = "test" ]; then \
-#        composer install --optimize-autoloader --no-interaction --no-progress; \
-#    else \
-#        export APP_ENV=$BUILD_ARGUMENT_ENV && composer install --optimize-autoloader --no-interaction --no-progress --no-dev; \
-#    fi
-#
-#RUN if [ "$BUILD_ARGUMENT_ENV" = "dev" ] || [ "$BUILD_ARGUMENT_ENV" = "test" ]; then \
-#        yarn install && yarn encore dev; \
-#    else \
-#        yarn install && yarn encore production; \
-#    fi
-#
-## create cached config file .env.local.php in case prod environment
-#RUN if [ "$BUILD_ARGUMENT_ENV" = "prod" ]; then composer dump-env $BUILD_ARGUMENT_ENV; \
-#    fi
+RUN if [ "$BUILD_ARGUMENT_ENV" = "dev" ] || [ "$BUILD_ARGUMENT_ENV" = "test" ]; then composer install --optimize-autoloader --no-interaction --no-progress; \
+    else export APP_ENV=$BUILD_ARGUMENT_ENV && composer install --optimize-autoloader --no-interaction --no-progress --no-dev; \
+    fi
+
+# create cached config file .env.local.php in case prod environment
+RUN if [ "$BUILD_ARGUMENT_ENV" = "prod" ]; then composer dump-env $BUILD_ARGUMENT_ENV; \
+    fi
 
 USER root
