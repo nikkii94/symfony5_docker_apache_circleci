@@ -1,4 +1,3 @@
-#FROM php:7.4-apache
 FROM php:7.3-apache
 
 # set main params
@@ -93,15 +92,8 @@ RUN openssl req -new -newkey rsa:4096 -days 3650 \
     -nodes -x509 -subj "/C=HU/ST=Pest/L=Local/O=Security/OU=Development/CN=mysite.local" \
     -keyout /etc/ssl/private/ssl-cert-snakeoil.key -out /etc/ssl/certs/ssl-cert-snakeoil.pem
 
-#RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-#    -keyout /etc/ssl/private/ssl-cert-snakeoil.key \
-#    -out /etc/ssl/certs/ssl-cert-snakeoil.pem -subj "/C=HU/ST=Budapest/L=Budapest/O=Security/OU=Development/CN=localhost"
-
 # set working directory
 WORKDIR $APP_HOME
-
-COPY ./.docker/entrypoint.sh /
-RUN chmod u+x /entrypoint.sh
 
 # create composer folder for user www-data
 RUN mkdir -p /var/www/.composer && chown -R www-data:www-data /var/www/.composer
@@ -111,6 +103,24 @@ USER www-data
 # copy source files
 COPY --chown=www-data:www-data . $APP_HOME/
 
-ENTRYPOINT ["/entrypoint.sh"]
+COPY ./.docker/entrypoint.sh /tmp/
+RUN /tmp/entrypoint.sh
+
+# install all PHP dependencies
+#RUN if [ "$BUILD_ARGUMENT_ENV" = "dev" ] || [ "$BUILD_ARGUMENT_ENV" = "test" ]; then \
+#        composer install --optimize-autoloader --no-interaction --no-progress; \
+#    else \
+#        export APP_ENV=$BUILD_ARGUMENT_ENV && composer install --optimize-autoloader --no-interaction --no-progress --no-dev; \
+#    fi
+#
+#RUN if [ "$BUILD_ARGUMENT_ENV" = "dev" ] || [ "$BUILD_ARGUMENT_ENV" = "test" ]; then \
+#        yarn install && yarn encore dev; \
+#    else \
+#        yarn install && yarn encore production; \
+#    fi
+#
+## create cached config file .env.local.php in case prod environment
+#RUN if [ "$BUILD_ARGUMENT_ENV" = "prod" ]; then composer dump-env $BUILD_ARGUMENT_ENV; \
+#    fi
 
 USER root
