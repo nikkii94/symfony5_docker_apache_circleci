@@ -104,8 +104,11 @@ USER www-data
 COPY --chown=www-data:www-data . $APP_HOME/
 
 # install all PHP dependencies
-RUN if [ "$BUILD_ARGUMENT_ENV" = "dev" ] || [ "$BUILD_ARGUMENT_ENV" = "test" ]; then composer install --optimize-autoloader --no-interaction --no-progress; \
-    else export APP_ENV=$BUILD_ARGUMENT_ENV && composer install --optimize-autoloader --no-interaction --no-progress --no-dev; \
+RUN if [ "$BUILD_ARGUMENT_ENV" = "dev" ] || [ "$BUILD_ARGUMENT_ENV" = "test" ]; then \
+    composer install --optimize-autoloader --no-interaction --no-progress && \
+    yarn install && yarn encore dev; \
+    else export APP_ENV=$BUILD_ARGUMENT_ENV && composer install --optimize-autoloader --no-interaction --no-progress --no-dev && \
+    yarn install && yarn encore production; \
     fi
 
 # create cached config file .env.local.php in case prod environment
