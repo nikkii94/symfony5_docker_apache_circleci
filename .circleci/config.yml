@@ -20,8 +20,8 @@ jobs:
           name: Wait for DB container is running and initialize db
           command: |
             make wait-for-db
-            make drop-migrate
-            make fixtures
+#            make drop-migrate
+#            make fixtures
 
       - run:
           name: Run unit/function tests
