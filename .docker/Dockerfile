@@ -97,6 +97,8 @@ WORKDIR $APP_HOME
 
 # create composer folder for user www-data
 RUN mkdir -p /var/www/.composer && chown -R www-data:www-data /var/www/.composer
+# /var/www/.cache/yarn
+RUN mkdir -p /var/www/.cache/yarn && chown -R www-data:www-data /var/www/.cache/yarn
 
 USER www-data
 
@@ -105,10 +107,11 @@ COPY --chown=www-data:www-data . $APP_HOME/
 
 # install all PHP dependencies
 RUN if [ "$BUILD_ARGUMENT_ENV" = "dev" ] || [ "$BUILD_ARGUMENT_ENV" = "test" ]; then \
-    composer install --optimize-autoloader --no-interaction --no-progress && \
-    yarn install && yarn encore dev; \
-    else export APP_ENV=$BUILD_ARGUMENT_ENV && composer install --optimize-autoloader --no-interaction --no-progress --no-dev && \
-    yarn install && yarn encore production; \
+        composer install --optimize-autoloader --no-interaction && \
+        yarn install && yarn encore dev; \
+    else export APP_ENV=$BUILD_ARGUMENT_ENV && \
+        composer install --optimize-autoloader --no-interaction --no-progress --no-dev && \
+        yarn install && yarn encore production; \
     fi
 
 # create cached config file .env.local.php in case prod environment

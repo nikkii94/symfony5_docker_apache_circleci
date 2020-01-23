@@ -6,7 +6,7 @@ jobs:
     machine: true
     branches:
       ignore:
-        - dev
+        - develop
 
     steps:
       - checkout
