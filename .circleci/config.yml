@@ -2,7 +2,7 @@ version: 2
 
 jobs:
   build:
-    working_directory: ~/code
+    working_directory: ~/html
     machine: true
     branches:
       ignore:
